@@ -5,6 +5,9 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 public class JavaOCR extends JFrame {
@@ -13,7 +16,42 @@ public class JavaOCR extends JFrame {
     private JTextArea textArea;
 
     public JavaOCR() {
+        setTitle("OCR App");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
+        // Create components
+        JLabel filePathLabel = new JLabel("Archivo de imagen:");
+        filePathTextField = new JTextField();
+        JButton browseButton = new JButton("Examinar");
+        textArea = new JTextArea();
+
+        // Add components to the frame
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(filePathLabel);
+        topPanel.add(filePathTextField);
+        topPanel.add(browseButton);
+        add(topPanel, BorderLayout.NORTH);
+
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        // Add action listener to the browse button
+        browseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(JavaOCR.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    filePathTextField.setText(selectedFile.getAbsolutePath());
+                    String imgText = getImgText(selectedFile.getAbsolutePath());
+                    textArea.setText(imgText);
+                }
+            }
+        });
+
+        pack();
+        setVisible(true);
     }
 
     public String getImgText(String imagePath) {
