@@ -4,9 +4,17 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
+import javax.swing.*;
 import java.io.File;
 
-public class JavaOCR {
+public class JavaOCR extends JFrame {
+
+    private JTextField filePathTextField;
+    private JTextArea textArea;
+
+    public JavaOCR() {
+
+    }
 
     public String getImgText(String imagePath) {
         ITesseract iTesseract = new Tesseract();
