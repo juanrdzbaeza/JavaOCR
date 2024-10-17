@@ -71,7 +71,7 @@ public class JavaOCR extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new JavaOCR_back();
+                new JavaOCR();
             }
         });
     }
