@@ -27,7 +27,7 @@ public class JavaOCR extends JFrame {
 
         // Create components
         JLabel filePathLabel = new JLabel("Archivo de imagen:");
-        filePathTextField = new JTextField(50);
+        filePathTextField = new JTextField(40);
         JButton browseButton = new JButton("Examinar");
         textArea = new JTextArea();
 
@@ -49,6 +49,7 @@ public class JavaOCR extends JFrame {
                 filePathTextField.setText(selectedFile.getAbsolutePath());
                 String imgText = getImgText(selectedFile.getAbsolutePath());
                 textArea.setText(imgText);
+                textArea.setLineWrap(true);
             }
         });
 
