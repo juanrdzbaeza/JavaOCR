@@ -98,6 +98,7 @@ public class JavaOCR extends JFrame {
 
     private void runOcrInBackground(File imageFile) {
         browseButton.setEnabled(false);
+        pasteButton.setEnabled(false);
         Cursor oldCursor = getCursor();
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         textArea.setText("Procesando...");
@@ -118,6 +119,7 @@ public class JavaOCR extends JFrame {
                     textArea.setText("Error al procesar la imagen.");
                 } finally {
                     browseButton.setEnabled(true);
+                    pasteButton.setEnabled(true);
                     setCursor(oldCursor);
                 }
             }
