@@ -14,58 +14,85 @@ Características principales
 Requisitos
 ----------
 - Java JDK 8 o posterior (se recomienda JDK 17+).
-- Tesseract OCR instalado en el sistema (recomendado: versión 4.1.1+ o la última estable).
-- `tessdata` con los archivos `.traineddata` del/los idioma(s) que necesites. Este repositorio ya contiene `tessdata/spa.traineddata`.
+- Tesseract OCR (instalación nativa) si deseas usar OCR completo. Para pruebas locales el proyecto incluye `tessdata/spa.traineddata`.
+- Maven para compilar (opcional si usas IntelliJ). Si no tienes Maven en PATH, puedes usar el Maven Wrapper (`mvnw`) — ver sección "Maven Wrapper".
+
+Quick start (rápido)
+--------------------
+Desde CMD (ventana de comandos) en Windows:
+
+```cmd
+cd /d C:\Users\juan\Documents\IdeaProjects\JavaOCR
+:: Si tienes Maven instalado globalmente
+mvn -DskipTests package
+
+:: Si no tienes Maven, usa IntelliJ (Maven -> Lifecycle -> package) o genera el wrapper (ver sección "Maven Wrapper")
+
+:: Configura tessdata (temporal para la sesión):
+set TESSDATA_PREFIX=C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata
+:: O define de forma persistente:
+setx TESSDATA_PREFIX "C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata"
+
+:: Ejecuta el JAR empacado (o usa el script run_javaocr.bat):
+java -jar target\JavaOCR-0.0.1-SNAPSHOT.jar
+```
+
+Maven Wrapper (opcional pero recomendado)
+-----------------------------------------
+El Maven Wrapper (`mvnw`, `mvnw.cmd` y `.mvn/wrapper/`) permite a cualquier usuario construir el proyecto sin instalar Maven globalmente.
+
+Para generarlo (necesitas Maven al menos una vez) ejecuta en la raíz del proyecto:
+
+```cmd
+mvn -N io.takari:maven:wrapper
+```
+
+Esto crea los archivos `mvnw`, `mvnw.cmd` y la carpeta `.mvn/wrapper/`. Después podrás compilar con:
+
+```cmd
+mvnw.cmd -DskipTests package
+```
+
+Nota: no incluí los binarios del wrapper en el repositorio para evitar añadir artefactos binarios aquí; si quieres que los añada, puedo generarlos e incluirlos (necesito ejecutar Maven localmente o que los descargues).
 
 Instalación rápida
 ------------------
 1. Clona o descarga el repositorio.
-2. Si usas Maven, compila:
-
-```bash
-mvn clean package
-```
-
+2. Compila (ver Quick start).
 3. El JAR generado estará en `target/JavaOCR-*.jar`.
 
 Configuración (tessdata)
 ------------------------
-Tesseract necesita encontrar los archivos `.traineddata`. Hay dos opciones:
-
-1) Usar el `tessdata` del proyecto (recomendado para pruebas internas)
-   - El proyecto ya incluye `tessdata/spa.traineddata` en la raíz del repo.
-   - El código de la aplicación intenta usar `TESSDATA_PREFIX` si está definido; si no, usa el directorio del proyecto `./tessdata`.
-
-2) Instalar Tesseract en el sistema y apuntar `TESSDATA_PREFIX` a su carpeta `tessdata`.
+Tesseract necesita encontrar los archivos `.traineddata`. El código intenta usar la variable de entorno `TESSDATA_PREFIX` si está definida; si no lo está, usa `./tessdata` relativo al directorio de trabajo.
 
 Cómo establecer `TESSDATA_PREFIX` en Windows (CMD):
 
 ```cmd
-:: Establece permanentemente la variable de entorno para el usuario actual
-setx TESSDATA_PREFIX "C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata"
-
 :: Para la sesión actual (temporal)
 set TESSDATA_PREFIX=C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata
+
+:: Para la sesión y de forma persistente (setx)
+setx TESSDATA_PREFIX "C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata"
 ```
 
-Si usas PowerShell (temporal):
+En IntelliJ (Run Configuration):
+- Run -> Edit Configurations -> selecciona tu aplicación -> Environment variables -> añade `TESSDATA_PREFIX`.
 
-```powershell
-$env:TESSDATA_PREFIX = 'C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata'
-```
-
-Configurar variable de entorno en IntelliJ (Run Configuration):
-- Run -> Edit Configurations -> selecciona tu aplicación -> Environment variables -> añade `TESSDATA_PREFIX` con el valor `C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata`.
-
-Verificar instalación de Tesseract
----------------------------------
-Desde una terminal, ejecuta:
+Verificar instalación de Tesseract y JVM
+---------------------------------------
+Comandos útiles para diagnosticar en Windows (CMD):
 
 ```cmd
-tesseract --version
-```
+:: Versión de Java y arquitectura (importante para compatibilidad con DLLs nativas)
+java -version
+echo %PROCESSOR_ARCHITECTURE%
 
-Si se muestra versión, Tesseract está en el PATH. Si no, instala Tesseract (por ejemplo: https://github.com/UB-Mannheim/tesseract/wiki) y añade su `bin` al `PATH`.
+:: Localiza tesseract si está instalado
+where tesseract
+
+:: Comprueba que spa.traineddata existe en el tessdata usado
+dir C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata\spa.traineddata
+```
 
 Ejecución
 ---------
