@@ -1,69 +1,191 @@
 # JavaOCR
 
-JavaOCR is a simple Java application that utilizes the Tesseract OCR engine to perform Optical Character Recognition (OCR) on images.
+Una aplicación Java sencilla que usa Tesseract (a través de Tess4J) para realizar OCR sobre imágenes.
 
-### Prerequisites
+Resumen
+-------
+JavaOCR carga una imagen seleccionada por el usuario y extrae su texto usando Tesseract. Este repositorio incluye un directorio `tessdata/` con el archivo `spa.traineddata` (español) para facilitar pruebas locales.
 
-Before running JavaOCR, make sure you have the following prerequisites installed:
+Características principales
+- Interfaz Swing minimalista para seleccionar imágenes y ver el texto reconocido.
+- Usa Tess4J (wrapper Java para Tesseract).
+- Viene preparado para usar los datos de lenguaje local (`tessdata/`).
 
-1. Java Development Kit (JDK) 8 or later
-2. Tesseract OCR engine (version 4.1.1 or later)
-3. Tesseract language data files for the languages you want to recognize
+Requisitos
+----------
+- Java JDK 8 o posterior (se recomienda JDK 17+).
+- Tesseract OCR (instalación nativa) si deseas usar OCR completo. Para pruebas locales el proyecto incluye `tessdata/spa.traineddata`.
+- Maven para compilar (opcional si usas IntelliJ). Si no tienes Maven en PATH, puedes usar el Maven Wrapper (`mvnw`) — ver sección "Maven Wrapper".
 
-### Installation
+Quick start (rápido)
+--------------------
+Desde CMD (ventana de comandos) en Windows:
 
-1. Download the latest version of JavaOCR from the GitHub repository: https://github.com/juanrdzbaeza/JavaOCR
-2. Extract the downloaded ZIP file to your desired location.
+```cmd
+cd /d C:\Users\juan\Documents\IdeaProjects\JavaOCR
+:: Si tienes Maven instalado globalmente
+mvn -DskipTests package
 
-### Configuration
+:: Si no tienes Maven, usa IntelliJ (Maven -> Lifecycle -> package) o genera el wrapper (ver sección "Maven Wrapper")
 
-1. Download the Spanish language data file from the Tesseract GitHub repository: https://github.com/tesseract-ocr/tessdata/raw/main/spa.traineddata
-2. Create a directory named `tessdata` in your project's root directory (e.g., `/Users/juan/IdeaProjects/JavaOCR/tessdata`).
-3. Move the downloaded `spa.traineddata` file into the `tessdata` directory.
-4. Set the `TESSDATA_PREFIX` environment variable to the path of the `tessdata` directory.
+:: Configura tessdata (temporal para la sesión):
+set TESSDATA_PREFIX=C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata
+:: O define de forma persistente:
+setx TESSDATA_PREFIX "C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata"
 
-For macOS, you can set the environment variable using the following command in your terminal:
-
-```bash
-export TESSDATA_PREFIX=/Users/juan/IdeaProjects/JavaOCR/tessdata
+:: Ejecuta el JAR empacado (o usa el script run_javaocr.bat):
+java -jar target\JavaOCR-0.0.1-SNAPSHOT.jar
 ```
 
-After setting the environment variable, you can run your Java application again. The Tesseract library should now be able to load the Spanish language data file and perform OCR on images.
+Maven Wrapper (opcional pero recomendado)
+-----------------------------------------
+El Maven Wrapper (`mvnw`, `mvnw.cmd` y `.mvn/wrapper/`) permite a cualquier usuario construir el proyecto sin instalar Maven globalmente.
 
-If you're using an IDE like IntelliJ IDEA, you can also set the environment variable in the IDE's run configuration. Follow these steps:
+Para generarlo (necesitas Maven al menos una vez) ejecuta en la raíz del proyecto:
 
-1. Open the Run Configuration for your Java application (e.g., JavaOCR).
-2. Go to the "Environment Variables" tab.
-3. Click the "+" button to add a new environment variable.
-4. Set the name as `TESSDATA_PREFIX` and the value as the path to your `tessdata` directory (`/Users/juan/IdeaProjects/JavaOCR/tessdata`).
-5. Save the changes and run your application.
+```cmd
+mvn -N io.takari:maven:wrapper
+```
 
-### Usage
+Esto crea los archivos `mvnw`, `mvnw.cmd` y la carpeta `.mvn/wrapper/`. Después podrás compilar con:
 
-To use JavaOCR, follow these steps:
+```cmd
+mvnw.cmd -DskipTests package
+```
 
-1. Run the JavaOCR application.
-2. Click on the "Examinar" button to select an image file for OCR.
-3. The recognized text will be displayed in the text area below the image.
+Nota: no incluí los binarios del wrapper en el repositorio para evitar añadir artefactos binarios aquí; si quieres que los añada, puedo generarlos e incluirlos (necesito ejecutar Maven localmente o que los descargues).
 
-### Troubleshooting
+Instalación rápida
+------------------
+1. Clona o descarga el repositorio.
+2. Compila (ver Quick start).
+3. El JAR generado estará en `target/JavaOCR-*.jar`.
 
-If you encounter any issues with JavaOCR, please check the following:
+Configuración (tessdata)
+------------------------
+Tesseract necesita encontrar los archivos `.traineddata`. El código intenta usar la variable de entorno `TESSDATA_PREFIX` si está definida; si no lo está, usa `./tessdata` relativo al directorio de trabajo.
 
-1. Ensure that you have installed the required prerequisites.
-2. Verify that the `TESSDATA_PREFIX` environment variable is set correctly.
-3. Check the logs for any error messages related to Tesseract.
+Cómo establecer `TESSDATA_PREFIX` en Windows (CMD):
 
-If you still encounter problems, feel free to open an issue on the GitHub repository: https://github.com/juanrdzbaeza/JavaOCR/issues
+```cmd
+:: Para la sesión actual (temporal)
+set TESSDATA_PREFIX=C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata
 
-### Contributing
+:: Para la sesión y de forma persistente (setx)
+setx TESSDATA_PREFIX "C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata"
+```
 
-Contributions to JavaOCR are welcome! If you find any bugs or have suggestions for improvements, please submit a pull request or open an issue on the GitHub repository.
+En IntelliJ (Run Configuration):
+- Run -> Edit Configurations -> selecciona tu aplicación -> Environment variables -> añade `TESSDATA_PREFIX`.
 
-### License
+Verificar instalación de Tesseract y JVM
+---------------------------------------
+Comandos útiles para diagnosticar en Windows (CMD):
 
-JavaOCR is licensed under the MIT License. See the `LICENSE` file for more information.
+```cmd
+:: Versión de Java y arquitectura (importante para compatibilidad con DLLs nativas)
+java -version
+echo %PROCESSOR_ARCHITECTURE%
 
-### Acknowledgments
+:: Localiza tesseract si está instalado
+where tesseract
 
-JavaOCR uses the Tesseract OCR engine, which is developed by Google. The Tesseract language data files are provided by the Tesseract OCR project on GitHub.
+:: Comprueba que spa.traineddata existe en el tessdata usado
+dir C:\Users\juan\Documents\IdeaProjects\JavaOCR\tessdata\spa.traineddata
+```
+
+Ejecución
+---------
+1) Desde IntelliJ: Ejecuta la clase `org.juanrdzbaeza.JavaOCR` (Run Configuration).
+2) Desde la línea de comandos (si ya generaste el JAR):
+
+```cmd
+java -jar target\JavaOCR-0.0.1-SNAPSHOT.jar
+```
+
+También hay dos scripts en la raíz:
+- `setup_tessdata_win.bat` — configura `TESSDATA_PREFIX` (temporal y persistente) y comprueba `tesseract --version`.
+- `run_javaocr.bat` — establece `TESSDATA_PREFIX` para la sesión si no está definido y ejecuta el JAR empaquetado si existe en `target/`.
+
+Uso (interfaz)
+--------------
+- Pulsa "Examinar" para seleccionar una imagen.
+- La aplicación mostrará "Procesando..." y luego el texto reconocido.
+
+Ejemplo de salida OCR
+---------------------
+A modo de ejemplo, si ejecutas OCR sobre `src/main/resources/images-tests/2024-10-17_02-02.png`, podrías obtener una salida similar a:
+
+```
+Factura Nº: 2024-1001
+Fecha: 2024-10-17
+Importe: 123,45 EUR
+Cliente: Empresa Ejemplo S.A.
+```
+
+Los resultados varían según la calidad de la imagen y el idioma.
+
+Resolución de problemas ampliada
+--------------------------------
+1) Error: `Error opening data file ./spa.traineddata` o mensajes sobre `TESSDATA_PREFIX`:
+   - Asegúrate de que `tessdata/spa.traineddata` existe en la ruta que use `TESSDATA_PREFIX`.
+   - Ejecuta:
+
+```cmd
+echo %TESSDATA_PREFIX%
+dir "%TESSDATA_PREFIX%\spa.traineddata"
+```
+
+   - Si no existe, apunta `TESSDATA_PREFIX` al directorio correcto o copia `spa.traineddata` en el directorio `tessdata` del proyecto.
+
+2) Error nativo `Invalid memory access` (JNA / DLLs) o excepciones nativas:
+   - Causa típica: las DLLs nativas de Tesseract/Leptonica no están en `PATH`, o la arquitectura (x86 vs x64) no coincide con la JVM.
+   - Pasos:
+     1. Verifica `where tesseract` para confirmar la instalación nativa.
+     2. Verifica `java -version` y `%PROCESSOR_ARCHITECTURE%` para comparar arquitecturas.
+     3. Si no tienes Tesseract instalado, instala una build para Windows (ej.: UB-Mannheim) y añade su `bin` al `PATH`.
+     4. Reinicia el terminal/IDE después de modificar `PATH`.
+
+3) Advertencia SLF4J (`No SLF4J providers were found`):
+   - Ya añadimos `slf4j-simple` en `pom.xml` para evitar la advertencia en ejecución.
+
+4) Si un archivo ya estaba trackeado por Git y ahora lo quieres ignorar (ej.: `.idea/`), debes eliminarlo del índice primero:
+
+```cmd
+git rm -r --cached .idea
+git commit -m "Remove .idea from repo and ignore globally"
+```
+
+Nota sobre librerías nativas y distribución portable
+--------------------------------------------------
+- El JAR resultante empaqueta dependencias Java, pero las DLLs nativas de Tesseract NO quedan dentro del JAR. Para una distribución portable en Windows puedes crear un ZIP que incluya:
+  - `JavaOCR-<versión>.jar`
+  - carpeta `tessdata/` completa
+  - la carpeta `bin/` con los DLLs nativos de Tesseract (desde una instalación Windows)
+  - un script `run_javaocr.bat` que establezca `TESSDATA_PREFIX` y añada temporalmente la carpeta `bin` al `PATH` antes de ejecutar el JAR.
+
+Ejemplo sencillo de `run_portable.bat` (esquema):
+
+```bat
+@echo off
+set SCRIPT_DIR=%~dp0
+set PATH=%SCRIPT_DIR%bin;%PATH%
+set TESSDATA_PREFIX=%SCRIPT_DIR%tessdata
+java -jar %SCRIPT_DIR%JavaOCR-0.0.1-SNAPSHOT.jar
+```
+
+Build reproducible / CI (opcional)
+----------------------------------
+Si quieres compilar automáticamente en GitHub Actions, puedo añadir un workflow mínimo que ejecute `mvn -DskipTests package` y almacene el artifact. Dime si lo quieres y lo añado.
+
+Contribuir
+----------
+Contribuciones bienvenidas. Abre issues o pull requests en GitHub: https://github.com/juanrdzbaeza/JavaOCR
+
+Licencia
+--------
+MIT. Ver el archivo `LICENSE`.
+
+Contacto
+--------
+Si necesitas ayuda adicional, comenta en un issue del repo o deja un mensaje en la página del proyecto en GitHub.
