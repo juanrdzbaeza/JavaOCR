@@ -125,39 +125,58 @@ Cliente: Empresa Ejemplo S.A.
 
 Los resultados varían según la calidad de la imagen y el idioma.
 
-Scripts útiles
---------------
-En la raíz del proyecto incluimos un script para Windows que configura `TESSDATA_PREFIX` apuntando al `tessdata/` del proyecto y comprueba si `tesseract` está en el `PATH`.
-
-Uso del script `setup_tessdata_win.bat`:
+Resolución de problemas ampliada
+--------------------------------
+1) Error: `Error opening data file ./spa.traineddata` o mensajes sobre `TESSDATA_PREFIX`:
+   - Asegúrate de que `tessdata/spa.traineddata` existe en la ruta que use `TESSDATA_PREFIX`.
+   - Ejecuta:
 
 ```cmd
-:: Ejecuta desde la carpeta raíz del proyecto
-setup_tessdata_win.bat
+echo %TESSDATA_PREFIX%
+dir "%TESSDATA_PREFIX%\spa.traineddata"
 ```
 
-El script hará dos cosas: ajustará la variable de entorno para la sesión actual y colocará `TESSDATA_PREFIX` de forma persistente para el usuario (usando `setx`). Si el script imprime `tesseract not found in PATH`, instala Tesseract y añade su `bin` al `PATH`.
+   - Si no existe, apunta `TESSDATA_PREFIX` al directorio correcto o copia `spa.traineddata` en el directorio `tessdata` del proyecto.
 
-Resolución de problemas comunes
---------------------------------
-- Error: `Error opening data file ./spa.traineddata` o mensajes sobre `TESSDATA_PREFIX`:
-  - Asegúrate de que `tessdata/spa.traineddata` existe y que `TESSDATA_PREFIX` apunta al directorio que contiene `spa.traineddata`.
+2) Error nativo `Invalid memory access` (JNA / DLLs) o excepciones nativas:
+   - Causa típica: las DLLs nativas de Tesseract/Leptonica no están en `PATH`, o la arquitectura (x86 vs x64) no coincide con la JVM.
+   - Pasos:
+     1. Verifica `where tesseract` para confirmar la instalación nativa.
+     2. Verifica `java -version` y `%PROCESSOR_ARCHITECTURE%` para comparar arquitecturas.
+     3. Si no tienes Tesseract instalado, instala una build para Windows (ej.: UB-Mannheim) y añade su `bin` al `PATH`.
+     4. Reinicia el terminal/IDE después de modificar `PATH`.
 
-- Error nativo `Invalid memory access` (JNA / DLLs):
-  - Esto indica un problema con las librerías nativas de Tesseract/Leptonica (DLLs) o una incompatibilidad de arquitectura (x86 vs x64).
-  - Solución:
-    1. Instala Tesseract para Windows (versión apropiada x64 si tu JVM es x64).
-    2. Añade la carpeta `bin` de la instalación de Tesseract al `PATH` de Windows.
-    3. Reinicia el IDE para que recoja las nuevas variables de entorno.
-    4. Verifica con `tesseract --version`.
+3) Advertencia SLF4J (`No SLF4J providers were found`):
+   - Ya añadimos `slf4j-simple` en `pom.xml` para evitar la advertencia en ejecución.
 
-- Advertencia SLF4J (`No SLF4J providers were found`):
-  - Es solo una advertencia; para eliminarla añade un proveedor SLF4J (por ejemplo `slf4j-simple` o `slf4j-log4j12`) en `pom.xml`.
+4) Si un archivo ya estaba trackeado por Git y ahora lo quieres ignorar (ej.: `.idea/`), debes eliminarlo del índice primero:
 
-Consejos de depuración
-----------------------
-- Habilita logs en la aplicación o revisa la salida de la consola de IntelliJ para ver mensajes completos.
-- Asegúrate de usar una JVM cuya arquitectura (32/64 bits) coincida con las DLLs nativas de Tesseract.
+```cmd
+git rm -r --cached .idea
+git commit -m "Remove .idea from repo and ignore globally"
+```
+
+Nota sobre librerías nativas y distribución portable
+--------------------------------------------------
+- El JAR resultante empaqueta dependencias Java, pero las DLLs nativas de Tesseract NO quedan dentro del JAR. Para una distribución portable en Windows puedes crear un ZIP que incluya:
+  - `JavaOCR-<versión>.jar`
+  - carpeta `tessdata/` completa
+  - la carpeta `bin/` con los DLLs nativos de Tesseract (desde una instalación Windows)
+  - un script `run_javaocr.bat` que establezca `TESSDATA_PREFIX` y añada temporalmente la carpeta `bin` al `PATH` antes de ejecutar el JAR.
+
+Ejemplo sencillo de `run_portable.bat` (esquema):
+
+```bat
+@echo off
+set SCRIPT_DIR=%~dp0
+set PATH=%SCRIPT_DIR%bin;%PATH%
+set TESSDATA_PREFIX=%SCRIPT_DIR%tessdata
+java -jar %SCRIPT_DIR%JavaOCR-0.0.1-SNAPSHOT.jar
+```
+
+Build reproducible / CI (opcional)
+----------------------------------
+Si quieres compilar automáticamente en GitHub Actions, puedo añadir un workflow mínimo que ejecute `mvn -DskipTests package` y almacene el artifact. Dime si lo quieres y lo añado.
 
 Contribuir
 ----------
