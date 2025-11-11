@@ -103,8 +103,12 @@ Ejecución
 java -jar target\JavaOCR-0.0.1-SNAPSHOT.jar
 ```
 
-Uso
----
+También hay dos scripts en la raíz:
+- `setup_tessdata_win.bat` — configura `TESSDATA_PREFIX` (temporal y persistente) y comprueba `tesseract --version`.
+- `run_javaocr.bat` — establece `TESSDATA_PREFIX` para la sesión si no está definido y ejecuta el JAR empaquetado si existe en `target/`.
+
+Uso (interfaz)
+--------------
 - Pulsa "Examinar" para seleccionar una imagen.
 - La aplicación mostrará "Procesando..." y luego el texto reconocido.
 
